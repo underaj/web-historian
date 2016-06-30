@@ -1,8 +1,8 @@
 var fs = require('fs');
 var path = require('path');
 var _ = require('underscore');
-var context = this;
-
+var request = require('request');
+var _ = require('underscore');
 /*
  * You will need to reuse the same paths many times over in the course of this sprint.
  * Consider using the `paths` object below to store frequently used file paths. This way,
@@ -31,6 +31,7 @@ exports.readListOfUrls = function(callback) {
     if ( err ) {
     } else {
       var dataArray = data.split('\n');
+      dataArray.pop();
       callback(dataArray);
     }
   });
@@ -61,23 +62,54 @@ exports.addUrlToList = function(url, callback) {
 exports.isUrlArchived = function(url, cb) {
   fs.readFile(exports.paths.archivedSites + '/' + url, 'utf-8', function(error, data) {
     if (error) {
-      return cb(false);
+      return cb(false, url);
     } else {
-      return cb(true);
+      return cb(true, url);
     }
   });
 };
 
 exports.downloadUrls = function(urlArray) {
   for ( var i = 0; i < urlArray.length; i++ ) {
-    if ( !exports.isUrlArchived(urlArray[i], function(bool) {
-      return bool;
-    }) ) {
-      fs.appendFile(exports.paths.archivedSites + '/' + urlArray[i], 'hello', 'utf-8', function(error, data) {
-        if ( error ) {
-          throw err;
-        }
-      });
-    }
+    exports.isUrlArchived(urlArray[i], function(exist, url) {
+      if (!exist) {
+        console.log(url);
+        request('http://' + url, function (error, response, body) {
+          console.log('still loading');
+          if (error) {
+            console.log('hi');
+            throw error;
+          } else if (!error && response.statusCode === 200 ) {
+            console.log('steve');
+            fs.appendFile(exports.paths.archivedSites + '/' + url, body, function(error, data) {
+              if ( error ) {
+                throw err;
+              }
+            });
+          } 
+        });
+      }
+    });
   }
 };
+
+setInterval(function() {
+  var downloadArray = [];
+  exports.readListOfUrls(function(listArray) {
+    // var length = listArray.length;
+    // console.log('------------');
+    // _.each(listArray, function(url, i) {
+    //   console.log('there');
+    //   if (url !== '') {
+    //     console.log('here');
+    //     exports.isUrlArchived(url, function(isArchived, abc) {
+    //       if (!isArchived) {
+    //         downloadArray.push(abc);
+    //       }
+    //     });
+    //   }
+
+    //   if (i === length - 1) {
+    //     console.log(downloadArray);
+    exports.downloadUrls(listArray);
+  }); }, 3000);
