@@ -33,13 +33,12 @@ exports.handleRequest = function (req, res) {
   }
 
   //GET
-  if ( req.method === 'GET') {
+  if (req.method === 'GET') {
     if (urlPath === '/') {
       helpers.serveAssets(res, archive.paths.siteAssets + '/index.html', helpers.sendResponse);
     } else if (urlPath.slice(0, 4) === '/www') {
       archive.isUrlArchived(urlPath, function(exists) {
         if (exists) {
-          console.log('here');
           helpers.serveAssets(res, archive.paths.archivedSites + urlPath, helpers.sendResponse, 'text/html');
         } else {
           helpers.serveAssets(res, archive.paths.siteAssets + '/loading.html', helpers.sendResponse);

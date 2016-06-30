@@ -49,7 +49,6 @@ exports.isUrlInList = function(target, callback) {
 };
 
 exports.addUrlToList = function(url, callback) {
-  var url = url;
   var filePath = exports.paths.list;
   fs.appendFile(filePath, url, 'utf-8', function(err) {
     if (err) {
@@ -70,19 +69,15 @@ exports.isUrlArchived = function(url, cb) {
 };
 
 exports.downloadUrls = function(urlArray) {
-  for ( var i = 0; i < urlArray.length; i++ ) {
+  for (var i = 0; i < urlArray.length; i++) {
     exports.isUrlArchived(urlArray[i], function(exist, url) {
       if (!exist) {
-        console.log(url);
         request('http://' + url, function (error, response, body) {
-          console.log('still loading');
           if (error) {
-            console.log('hi');
             throw error;
           } else if (!error && response.statusCode === 200 ) {
-            console.log('steve');
             fs.appendFile(exports.paths.archivedSites + '/' + url, body, function(error, data) {
-              if ( error ) {
+              if (error) {
                 throw err;
               }
             });
@@ -96,20 +91,6 @@ exports.downloadUrls = function(urlArray) {
 setInterval(function() {
   var downloadArray = [];
   exports.readListOfUrls(function(listArray) {
-    // var length = listArray.length;
-    // console.log('------------');
-    // _.each(listArray, function(url, i) {
-    //   console.log('there');
-    //   if (url !== '') {
-    //     console.log('here');
-    //     exports.isUrlArchived(url, function(isArchived, abc) {
-    //       if (!isArchived) {
-    //         downloadArray.push(abc);
-    //       }
-    //     });
-    //   }
-
-    //   if (i === length - 1) {
-    //     console.log(downloadArray);
     exports.downloadUrls(listArray);
-  }); }, 3000);
+  });
+}, 3000);

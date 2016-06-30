@@ -16,7 +16,6 @@ exports.serveAssets = function(res, asset, callback, type) {
   // css, or anything that doesn't change often.)
   var header = exports.headers;
   var statusCode = 200;
-  console.log(asset);
   fs.readFile(asset, function(err, data) {
     if (err) {
       callback(res, '', 404);
