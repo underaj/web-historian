@@ -31,7 +31,9 @@ exports.readListOfUrls = function(callback) {
     if ( err ) {
     } else {
       var dataArray = data.split('\n');
-      dataArray.pop();
+      if (dataArray[dataArray.length - 1] === '') {
+        dataArray.pop();
+      }
       callback(dataArray);
     }
   });

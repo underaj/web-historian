@@ -19,16 +19,18 @@ exports.handleRequest = function (req, res) {
 
     req.on('end', function() {
       targetUrl = data.split('=')[1];
-      archive.isUrlInList(targetUrl, function(exists) {
-        if (!exists) {
-          archive.addUrlToList(targetUrl + '\n', function() {
-            console.log('added!');
-          });
-        }
-        helpers.headers.location = targetUrl;
-        res.writeHead(302, helpers.headers);
-        res.end();
-      });
+      if (targetUrl.slice(0,3) === 'www') {
+        archive.isUrlInList(targetUrl, function(exists) {
+          if (!exists) {
+            archive.addUrlToList(targetUrl + '\n', function() {
+              console.log('added!');
+            });
+          }
+          helpers.headers.location = targetUrl;
+          res.writeHead(302, helpers.headers);
+          res.end();
+        });
+      }
     });
   }
 
